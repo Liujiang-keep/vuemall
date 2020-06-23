@@ -8,7 +8,7 @@
       <home-carousel ref="hSwiper" :banners="banners"></home-carousel>
       <recommend-view :recommends="recommends"></recommend-view>
       <home-feature-view></home-feature-view>
-      <tab-control></tab-control>
+      <tab-control @tabClick="tabClick"></tab-control>
       <goods-list :goods="showGoodsList"></goods-list>
     </scroll>
   </div>
@@ -74,10 +74,10 @@
       _getProductData(type) {
         // 获取页码
         const page = this.goods[type].page
-        console.log(page);
+        // console.log(page);
         getProductData(type, page).then(res => {
           const newList = res.data.list
-          console.log(res.data)
+          // console.log(res.data)
 
           this.goods[type].list.push(...newList)
           this.goods[type].page += 1
@@ -87,7 +87,19 @@
         })
       },
       //事件监听
-
+        tabClick(index){
+          // console.log(index)
+          switch (index) {
+            case 0:
+              this.currentType=POP
+              break
+            case 1:
+              this.currentType=NEW
+              break
+            case 2:
+              this.currentType=SELL
+          }
+        }
       }
 
   }
