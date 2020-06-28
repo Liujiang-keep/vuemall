@@ -5,6 +5,7 @@ const Home = () =>import('../views/home/Home')
 const Categary = () =>import('../views/categary/Categary')
 const Cart = () =>import('../views/cart/Cart')
 const Mys = () =>import('../views/mys/Mys')
+const Detail=()=>import('../views/detail/Detail')
 
 Vue.use(VueRouter)
 
@@ -30,6 +31,10 @@ const router =new VueRouter({
       path: '/mys',
       component:Mys
     } ,
+    {
+      path:'/detail',
+      component:Detail
+    }
   ],
   mode:'history'
 })

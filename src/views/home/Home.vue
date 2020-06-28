@@ -1,16 +1,21 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav" ><div slot="center">购物街</div></nav-bar>
-
+    <tab-control ref="topTab" v-show="showTabControl" class="tab-control" @tabClick="tabClick"></tab-control>
     <scroll :probe-type="3"
             class="content"
-            ref="scroll">
-      <home-carousel ref="hSwiper" :banners="banners"></home-carousel>
+            ref="scroll"
+            :data="[showGoodsList]"
+            @pullingUp="loadMore"
+            @scroll="contentScroll"
+            :pull-up-load="true">
+      <home-carousel ref="hSwiper" :banners="banners" @swiperLoaded=""></home-carousel>
       <recommend-view :recommends="recommends"></recommend-view>
       <home-feature-view></home-feature-view>
-      <tab-control @tabClick="tabClick"></tab-control>
+      <tab-control ref="contentTab" class="tab-control" @tabClick="tabClick"></tab-control>
       <goods-list :goods="showGoodsList"></goods-list>
     </scroll>
+    <back-top v-show="showBackTop" @click.native="backTop"></back-top>
   </div>
 </template>
 
@@ -22,12 +27,15 @@
   import {getMultiData,getProductData} from "@/network/home";
   import Scroll from "@/components/common/scroll/Scroll";
   import TabControl from "@/components/content/tabControl/TabControl";
-  import {POP,NEW,SELL} from "@/common/const";
+  import {POP, NEW, SELL, TOP_DISTANCE} from "@/common/const";
   import GoodsList from "@/components/content/goods/GoodsList";
+  import BackTop from "@/components/content/backTop/BackTop";
+  import {backTopMixin} from "@/common/mixin";
 
   export default {
     name: "Home",
     components:{
+      BackTop,
       GoodsList,
       TabControl,
       Scroll,
@@ -36,6 +44,7 @@
       HomeCarousel,
       RecommendView,
     },
+    mixins:[backTopMixin],
     data() {
       return{
         banners:[],
@@ -45,7 +54,10 @@
           'new':{page: 1,list: []},
           'sell':{page: 1,list: []}
         },
-        currentType:POP
+        currentType:POP,
+        showTabControl:false,
+        tabOffsetTop:0,
+        saveY:0,
       }
     },
     computed:{
@@ -61,23 +73,36 @@
       this._getProductData(POP)
       this._getProductData(NEW)
       this._getProductData(SELL)
+
+      this.$bus.$on('imgLoad', () => {
+        this.$refs.scroll.refresh()
+
+      })
     },
-    methods:{
-      _getMultiData(){
-        getMultiData().then(res=>{
+    activated() {
+      this.$refs.scroll.scrollTo(0, this.saveY, 0)
+      this.$refs.scroll.refresh()
+    },
+    deactivated() {
+      this.saveY = this.$refs.scroll.scrollY
+      // console.log(this.saveY)
+    },
+    methods: {
+      /**
+       * 网络请求
+       */
+      _getMultiData() {
+        getMultiData().then(res => {
           this.banners = res.data.banner.list
-          // console.log(res.data);
-          this.recommends= res.data.recommend.list
-          // console.log(this.recommends);
+          // console.log(res);
+          this.recommends = res.data.recommend.list
         })
       },
       _getProductData(type) {
         // 获取页码
         const page = this.goods[type].page
-        // console.log(page);
         getProductData(type, page).then(res => {
           const newList = res.data.list
-          // console.log(res.data)
 
           this.goods[type].list.push(...newList)
           this.goods[type].page += 1
@@ -86,21 +111,38 @@
           this.$refs.scroll.finishedPullUp()
         })
       },
-      //事件监听
-        tabClick(index){
-          // console.log(index)
-          switch (index) {
-            case 0:
-              this.currentType=POP
-              break
-            case 1:
-              this.currentType=NEW
-              break
-            case 2:
-              this.currentType=SELL
-          }
+      /**
+       * 事件监听
+       */
+      tabClick(index) {
+        switch (index) {
+          case 0:
+            this.currentType = POP
+            break
+          case 1:
+            this.currentType = NEW
+            break
+          case 2:
+            this.currentType = SELL
+            break
         }
-      }
+
+        this.$refs.contentTab.currentIndex = index
+        this.$refs.topTab.currentIndex = index
+      },
+      loadMore(){
+        this._getProductData(this.currentType)
+      },
+      contentScroll(position) {
+        this.showBackTop = position.y <= -TOP_DISTANCE
+        this.showTabControl = position.y <=-638
+      },
+      // swiperLoaded() {
+      //   console.log(1);
+      //   this.tabOffsetTop = this.$refs.contentTab.$el.offsetTop;
+      //   console.log(this.tabOffsetTop);
+      // }
+    }
 
   }
 </script>
@@ -124,4 +166,9 @@
     left: 0;
     right: 0;
   }
+.tab-control {
+  position: relative;
+  z-index: 9;
+}
+
 </style>

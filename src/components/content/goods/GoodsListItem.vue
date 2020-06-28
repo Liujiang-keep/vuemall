@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item" @click="itemClick">
-    <img :src="showImage" :key="showImage" alt="">
+    <img @load="imgLoad" :src="showImage" :key="showImage" alt="">
     <div class="goods-info">
       <p>{{goodsItem.title}}</p>
       <span class="price">{{goodsItem.price}}</span>
@@ -28,9 +28,14 @@
     methods:{
       itemClick(){
         //获取iid
-        // const iid = this.goodsItem.iid;
-        // //跳转
-        // this
+        const iid = this.goodsItem.iid;
+        //跳转
+        // console.log(iid)
+        this.$router.push({path:'/detail',query:{iid}})
+      },
+      imgLoad(){
+        this.$bus.$emit('imgLoad')
+        // console.log(1);
       }
     }
   }
@@ -74,6 +79,6 @@
     top: -1px;
     width: 14px;
     height: 14px;
-    background: url("../../../assets/img/common/collect.svg");
+    background: url("../../../assets/img/common/collect.svg") 0 0/14px 14px;
   }
 </style>
