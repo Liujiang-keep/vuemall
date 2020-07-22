@@ -137,11 +137,11 @@
         this.showBackTop = position.y <= -TOP_DISTANCE
         this.showTabControl = position.y <=-638
       },
-      // swiperLoaded() {
-      //   console.log(1);
-      //   this.tabOffsetTop = this.$refs.contentTab.$el.offsetTop;
-      //   console.log(this.tabOffsetTop);
-      // }
+      swiperLoaded() {
+         console.log(1);
+         this.tabOffsetTop = this.$refs.contentTab.$el.offsetTop;
+         console.log(this.tabOffsetTop);
+       }
     }
 
   }
