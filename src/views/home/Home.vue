@@ -9,7 +9,7 @@
             @pullingUp="loadMore"
             @scroll="contentScroll"
             :pull-up-load="true">
-      <home-carousel ref="hSwiper" :banners="banners" @swiperLoaded=""></home-carousel>
+      <home-carousel ref="hSwiper" :banners="banners" @swiperLoaded="swiperLoaded"></home-carousel>
       <recommend-view :recommends="recommends"></recommend-view>
       <home-feature-view></home-feature-view>
       <tab-control ref="contentTab" class="tab-control" @tabClick="tabClick"></tab-control>
